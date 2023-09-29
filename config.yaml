@@ -43,6 +43,7 @@ required:
   - feed_name
   - project
   - access
+  - source
 eventOptions:
   name: feed_name
   events:

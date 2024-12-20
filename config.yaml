@@ -38,6 +38,12 @@ properties:
     type: string
     format: uri
     description: Enter a slack webhook to enable Slack notifications
+  filecoin:
+    title: Push to IPFS/Filecoin
+    type: boolean
+    description: >-
+      WARNING: This will push all scraped files to IPFS and Filecoin.  
+      There is no way to remove files from these storage systems.
 required:
   - feed
   - feed_name

@@ -1,14 +1,19 @@
+""" Fetches documents from RSS feeds
+    and uploads them to DocumentCloud
+    and IPFS
+"""
 import urllib.parse as urlparse
+
+from ratelimit import limits, sleep_and_retry
 
 import feedparser
 from documentcloud.addon import AddOn
 from documentcloud.constants import BULK_LIMIT
 from documentcloud.toolbox import grouper, requests_retry_session
-from ratelimit import limits, sleep_and_retry
 
 DOC_CUTOFF = 10
 MAX_NEW_DOCS = 10
-
+FILECOIN_ID = 104
 
 class Document:
     """Class to hold information about individual documents"""
@@ -29,6 +34,7 @@ class Document:
 
 
 class Fetcher(AddOn):
+    """ Add-On that fetches documents from RSS feeds """
     @sleep_and_retry
     @limits(calls=5, period=1)
     def fetch(self, feed, depth=0):
@@ -56,9 +62,10 @@ class Fetcher(AddOn):
         return docs
 
     def upload(self, docs):
+        """ Uploads documents to DocumentCloud in batches """
         if self.data.get("dry_run"):
             return
-
+        doc_ids = []
         for doc_group in grouper(docs, BULK_LIMIT):
             # filter out None's from grouper padding
             doc_group = [d for d in doc_group if d]
@@ -77,6 +84,13 @@ class Fetcher(AddOn):
             ]
             resp = self.client.post("documents/", json=doc_group)
             resp.raise_for_status()
+            doc_ids.extend([d.id for d in doc_group])
+
+        if self.data.get("filecoin") and doc_ids:
+            self.client.post(
+                "addon_runs/",
+                json={"addon": FILECOIN_ID, "parameters": {}, "documents": doc_ids},
+            )
 
     def send_notification(self, subject, message):
         """Send notifications via slack and email"""
@@ -103,6 +117,7 @@ class Fetcher(AddOn):
         self.send_notification(subj, body)
 
     def set_project(self, user_input):
+        """ Method for setting a project by ID or title """
         try:
             self.project = int(user_input)
         except ValueError:
@@ -110,6 +125,7 @@ class Fetcher(AddOn):
             self.project = project.id
 
     def main(self):
+        """ Fetches the new docs and uploads them """
         self.set_project(self.data["project"])
         new_docs = self.fetch(self.data["feed"])
         if new_docs:

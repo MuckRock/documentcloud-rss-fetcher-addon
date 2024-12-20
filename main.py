@@ -65,6 +65,7 @@ class Fetcher(AddOn):
         """ Uploads documents to DocumentCloud in batches """
         if self.data.get("dry_run"):
             return
+        doc_ids = []
         for doc_group in grouper(docs, BULK_LIMIT):
             # filter out None's from grouper padding
             doc_group = [d for d in doc_group if d]
@@ -83,7 +84,9 @@ class Fetcher(AddOn):
             ]
             resp = self.client.post("documents/", json=doc_group)
             resp.raise_for_status()
-            print(resp.text)
+            doc_ids.extend([doc['id'] for doc in resp.json()])
+            print(doc_ids)
+
         """
         if self.data.get("filecoin") and doc_ids:
             self.client.post(

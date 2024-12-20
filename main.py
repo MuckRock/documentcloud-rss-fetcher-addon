@@ -85,15 +85,13 @@ class Fetcher(AddOn):
             resp = self.client.post("documents/", json=doc_group)
             resp.raise_for_status()
             doc_ids.extend([doc['id'] for doc in resp.json()])
-            print(doc_ids)
 
-        """
         if self.data.get("filecoin") and doc_ids:
             self.client.post(
                 "addon_runs/",
                 json={"addon": FILECOIN_ID, "parameters": {}, "documents": doc_ids},
             )
-        """
+
     def send_notification(self, subject, message):
         """Send notifications via slack and email"""
         self.send_mail(subject, message)

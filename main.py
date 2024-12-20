@@ -65,7 +65,6 @@ class Fetcher(AddOn):
         """ Uploads documents to DocumentCloud in batches """
         if self.data.get("dry_run"):
             return
-        doc_ids = []
         for doc_group in grouper(docs, BULK_LIMIT):
             # filter out None's from grouper padding
             doc_group = [d for d in doc_group if d]
@@ -84,14 +83,14 @@ class Fetcher(AddOn):
             ]
             resp = self.client.post("documents/", json=doc_group)
             resp.raise_for_status()
-            doc_ids.extend([d.id for d in doc_group])
-
+            print(resp.text)
+        """
         if self.data.get("filecoin") and doc_ids:
             self.client.post(
                 "addon_runs/",
                 json={"addon": FILECOIN_ID, "parameters": {}, "documents": doc_ids},
             )
-
+        """
     def send_notification(self, subject, message):
         """Send notifications via slack and email"""
         self.send_mail(subject, message)

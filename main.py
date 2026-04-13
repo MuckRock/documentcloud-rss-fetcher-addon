@@ -126,6 +126,7 @@ class Fetcher(AddOn):
 
     def main(self):
         """ Fetches the new docs and uploads them """
+        self.client.session.headers.update({'User-Agent': 'RSS Fetcher Add-On'})
         self.set_project(self.data["project"])
         new_docs = self.fetch(self.data["feed"])
         if new_docs:

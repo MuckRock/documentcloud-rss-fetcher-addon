@@ -43,7 +43,10 @@ class Fetcher(AddOn):
         resp = requests_retry_session().get(feed)
         resp.raise_for_status()
         docs = []
-        parsed = feedparser.parse(feed)
+        parsed = feedparser.parse(resp.content)
+        print(f"bozo={parsed.bozo}, entries={len(parsed.entries)}")
+            if parsed.bozo:
+                print("bozo_exception:", repr(parsed.bozo_exception))
         for entry in parsed.entries:
             doc = Document(entry.link, entry.title)
 

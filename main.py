@@ -45,8 +45,8 @@ class Fetcher(AddOn):
         docs = []
         parsed = feedparser.parse(resp.content)
         print(f"bozo={parsed.bozo}, entries={len(parsed.entries)}")
-            if parsed.bozo:
-                print("bozo_exception:", repr(parsed.bozo_exception))
+        if parsed.bozo:
+            print("bozo_exception:", repr(parsed.bozo_exception))
         for entry in parsed.entries:
             doc = Document(entry.link, entry.title)
 

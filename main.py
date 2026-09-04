@@ -40,6 +40,9 @@ class Fetcher(AddOn):
     def fetch(self, feed, depth=0):
         """Fetch the feed and look for new documents"""
         print(f"🌐 Fetching {feed}")
+        resp = requests_retry_session().get(
+            feed, headers={"User-Agent": "RSS Fetcher Add-On (DocumentCloud.org contact: info@muckrock.com)"}
+        )
         resp = requests_retry_session().get(feed)
         resp.raise_for_status()
         docs = []
